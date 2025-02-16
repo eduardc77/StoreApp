@@ -14,21 +14,21 @@ public protocol AccountServiceProtocol {
 }
 
 public struct AccountService: AccountServiceProtocol {
-
+    
     private let session: URLSession
     private let authorizationManager: AuthorizationManager
-
+    
     private var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
-
+    
     public init(session: URLSession = URLSession.shared) {
         self.session = session
         self.authorizationManager = AuthorizationManager(session: session)
     }
-
+    
     public func login<T: Decodable>(with credentials: Credentials) async throws -> T {
         try await session.request(
             (route: Store.Authentication.login(credentials: credentials),
@@ -36,25 +36,25 @@ public struct AccountService: AccountServiceProtocol {
             decoder: decoder
         )
     }
-
+    
     public func profile<T: Decodable>() async throws -> T {
         try await session.authorizedRequest(
             (route: Store.Authentication.profile,
-            env: Store.Environment.develop(accessToken: authorizationManager.validToken().accessToken)),
+             env: Store.Environment.develop(accessToken: authorizationManager.validToken().accessToken)),
             decoder: decoder,
             allowRetry: true,
             refreshToken: authorizationManager.refreshToken
         )
     }
-
+    
     public func hasValidAccessToken() async -> Bool {
         await authorizationManager.hasValidAccessToken
     }
-
+    
     public func invalidateToken() async {
         await authorizationManager.invalidateToken()
     }
-
+    
     public func storeToken(loginResponseData: LoginResponseData) async {
         await authorizationManager.storeToken(
             OAuthToken(

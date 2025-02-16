@@ -6,9 +6,7 @@
 import SwiftUI
 
 struct ContentView: View {
-
     @State private var networkMonitor = NetworkMonitor()
-
     @Environment(AccountManager.self) private var accountManager
 
     var body: some View {

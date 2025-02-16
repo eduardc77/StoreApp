@@ -7,7 +7,7 @@ import SwiftUI
 
 struct LoginScreen: View {
     @Environment(AccountManager.self) private var accountManager
-
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -16,13 +16,13 @@ struct LoginScreen: View {
                     SecureField("Login.PasswordField.Title", text: Bindable(accountManager).credentials.password)
                 }
                 .textFieldStyle(.roundedBorder)
-
+                
                 NavigationLink {
                     RegisterScreen()
                 } label: {
                     Text("Login.RegisterButton.Title")
                 }
-
+                
                 AsyncButton(
                     action: accountManager.login,
                     label: {

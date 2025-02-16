@@ -8,7 +8,7 @@ struct ServerError: Codable {
     let timestamp: String
     let path: String
     let status: Int
-
+    
     enum CodingKeys: String, CodingKey {
         case error
         case timestamp

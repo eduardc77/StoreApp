@@ -16,29 +16,29 @@ struct File {
 struct MultipartFormData {
     let fields: [String: String] // Regular form fields (key-value pairs)
     let files: [File] // File data
-
+    
     init(fields: [String: String], files: [File]) {
         self.fields = fields
         self.files = files
     }
-
+    
     // Example method for validation
     func validate() throws {
         if fields.isEmpty && files.isEmpty {
             throw NetworkError.invalidRequestBody
         }
     }
-
+    
     func createBody(boundary: String) -> Data? {
         var body = Data()
-
+        
         // Add form fields
         for (key, value) in fields {
             body.append("--\(boundary)\r\n")
             body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
             body.append("\(value)\r\n")
         }
-
+        
         // Add files
         for file in files {
             body.append("--\(boundary)\r\n")
@@ -47,10 +47,10 @@ struct MultipartFormData {
             body.append(file.fileData)
             body.append("\r\n")
         }
-
+        
         // End of multipart form data
         body.append("--\(boundary)--\r\n")
-
+        
         return body
     }
 }

@@ -6,22 +6,22 @@
 import Foundation.NSDate
 
 actor AuthorizationManager {
-
+    
     private var refreshTask: Task<OAuthToken, Error>?
     let session: URLSession
     let tokenStore: TokenStoreProtocol
-
+    
     var hasValidAccessToken: Bool {
         guard let accessToken = tokenStore.getAuthorizationData() else { return false }
         return accessToken.isAccessTokenValid
     }
-
+    
     init(tokenStore: TokenStoreProtocol = TokenStore(),
          session: URLSession) {
         self.tokenStore = tokenStore
         self.session = session
     }
-
+    
     func validToken() async throws -> OAuthToken {
         if let refreshTask {
             // A refresh task is in progress.
@@ -35,7 +35,7 @@ actor AuthorizationManager {
         }
         return try await refreshToken()
     }
-
+    
     func refreshToken() async throws -> OAuthToken {
         guard let refreshToken = tokenStore.getAuthorizationData()?.refreshToken else {
             throw NetworkError.missingToken
@@ -43,7 +43,7 @@ actor AuthorizationManager {
         }
         let refreshTask = Task { () throws -> OAuthToken in
             defer { self.refreshTask = nil }
-
+            
             var authorizationData: OAuthToken = try await session.authorizedRequest(
                 (route: Store.Authentication.refreshToken(refreshToken: refreshToken),
                  env: Store.Environment.develop()),
@@ -60,14 +60,14 @@ actor AuthorizationManager {
         self.refreshTask = refreshTask
         return try await refreshTask.value
     }
-
+    
     func invalidateToken() {
         tokenStore.deleteAuthorizationData()
     }
-
+    
     func storeToken(_ token: OAuthToken) {
         tokenStore.setAuthorizationData(token)
     }
-
+    
     
 }

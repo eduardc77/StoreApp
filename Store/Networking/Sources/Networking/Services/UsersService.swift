@@ -12,10 +12,10 @@ public protocol UsersServiceProtocol {
 }
 
 public struct UsersService: UsersServiceProtocol {
-
+    
     private let session: URLSession
     private let authorizationManager: AuthorizationManager
-
+    
     private var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -26,7 +26,7 @@ public struct UsersService: UsersServiceProtocol {
         self.session = session
         self.authorizationManager = AuthorizationManager(session: session)
     }
-
+    
     public func register<T: Decodable>(with registerFormData: RegisterFormData) async throws -> T {
         try await session.request(
             (route: Store.Users.createUser(registerFormData: registerFormData),
@@ -34,7 +34,7 @@ public struct UsersService: UsersServiceProtocol {
             decoder: decoder
         )
     }
-
+    
     public func isEmailAvailable<T: Decodable>(_ email: String) async throws -> T {
         try await session.request(
             (route: Store.Users.isEmailAvailable(email),
@@ -42,7 +42,7 @@ public struct UsersService: UsersServiceProtocol {
             decoder: decoder
         )
     }
-
+    
     public func updateUser<T: Decodable>(with id: Int, name: String, email: String) async throws -> T {
         try await session.request(
             (route: Store.Users.updateUser(id: id, name: name, email: email),

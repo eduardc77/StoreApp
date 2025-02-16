@@ -12,11 +12,11 @@ import OSLog
 final class AccountManager {
     var accountService: AccountServiceProtocol
     var usersService: UsersServiceProtocol
-
+    
     var loggedIn: Bool = false
-
+    
     var userProfile: User?
-
+    
     var credentials = Credentials(
         email: "john@mail.com",
         password: "changeme"
@@ -27,7 +27,7 @@ final class AccountManager {
         password: "changeme",
         avatar: "https://i.imgur.com/LDOO4Qs.jpg"
     )
-
+    
     init(
         accountService: AccountServiceProtocol = AccountService(),
         usersService: UsersServiceProtocol = UsersService()
@@ -39,8 +39,8 @@ final class AccountManager {
     
     func register() async {
         do {
-//            let emailAvailability: EmailAvailabilityDTO = try await usersService.isEmailAvailable(registerFormData.email)
-//            guard emailAvailability.isAvailable else { throw NetworkError.emailUnavailable }
+            //            let emailAvailability: EmailAvailabilityDTO = try await usersService.isEmailAvailable(registerFormData.email)
+            //            guard emailAvailability.isAvailable else { throw NetworkError.emailUnavailable }
             let userResponse: User = try await usersService.register(with: registerFormData)
             credentials = Credentials(email: userResponse.email, password: userResponse.password)
             await login()
@@ -58,7 +58,7 @@ final class AccountManager {
             Logger.account.error("Error on login: \(error.localizedDescription).")
         }
     }
-
+    
     func fetchProfile() async {
         do {
             let profileResponse: User = try await accountService.profile()
@@ -67,7 +67,7 @@ final class AccountManager {
             Logger.account.error("Error fetching profile: \(error.localizedDescription).")
         }
     }
-
+    
     func updateUser(name: String, email: String) async {
         guard let userID = userProfile?.id else { return }
         do {
@@ -77,7 +77,7 @@ final class AccountManager {
             Logger.account.error("Error updating profile: \(error.localizedDescription).")
         }
     }
-
+    
     func logout() async {
         await accountService.invalidateToken()
         loggedIn = false

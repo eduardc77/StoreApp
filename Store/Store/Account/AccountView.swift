@@ -8,17 +8,17 @@ import SwiftUI
 struct AccountView: View {
     @Environment(AccountManager.self) private var accountManager
     @Environment(\.dismiss) private var dismiss
-
+    
     @State private var editMode: Bool = false
     @State private var name: String = ""
     @State private var email: String = ""
-
+    
     static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         return dateFormatter
     }()
-
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -35,7 +35,7 @@ struct AccountView: View {
                             .clipShape(Circle())
                             .frame(maxWidth: .infinity)
                         }
-
+                        
                         Group {
                             if editMode {
                                 TextField("Account.NameLabel.Title", text: $name)
@@ -51,7 +51,7 @@ struct AccountView: View {
                             }
                         }
                         .font(.headline.bold())
-
+                        
                         if let joinDate = Self.dateFormatter.date(from: profile.creationAt ?? "") {
                             Text("Joined \(joinDate.formatted(.dateTime.month(.wide).day(.twoDigits).year()))",
                                  comment: "Variable is the calendar date when the person joined.")
@@ -61,7 +61,7 @@ struct AccountView: View {
                     }
                     .listRowInsets(.none)
                     .listRowBackground(Color.clear)
-
+                    
                     Section {
                         if editMode {
                             TextField("Account.EmailLabel.Title", text: $email)

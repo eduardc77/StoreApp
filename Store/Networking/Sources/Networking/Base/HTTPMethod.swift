@@ -16,10 +16,10 @@ public enum HTTPMethod: String, CaseIterable, Identifiable {
     case post
     case put
     case trace
-
+    
     /// The unique HTTP method identifier.
     public var id: String { rawValue }
-
+    
     /// The uppercased HTTP method name.
     public var method: String { id.uppercased() }
 }

@@ -8,16 +8,15 @@ import Observation
 
 @Observable
 final class NetworkMonitor {
-    
+    private let networkMonitor = NWPathMonitor()
+    private let workerQueue = DispatchQueue(label: "NetworMonitor.queue")
+    private var pathStatus: NWPath.Status = .satisfied
+
     var hasNetworkConnection: Bool {
         pathStatus == .satisfied
     }
     var isUsingMobileConnection = false
-    
-    private let networkMonitor = NWPathMonitor()
-    private let workerQueue = DispatchQueue(label: "NetworMonitor.queue")
-    private var pathStatus: NWPath.Status = .satisfied
-    
+
     init() {
         startMonitoring()
     }

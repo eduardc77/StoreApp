@@ -25,7 +25,7 @@ extension Store.Authentication {
             return "/auth/refresh-token"
         }
     }
-
+    
     var queryParams: [String: String]? { return nil }
 
     var formParams: [String: String]? {

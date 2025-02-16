@@ -12,7 +12,7 @@ public struct User: Identifiable, Decodable {
     public let role: String
     public let creationAt: String?
     public let updatedAt: String?
-
+    
     public init(id: Int, name: String, email: String, password: String, avatar: String, role: String, creationAt: String?, updatedAt: String?) {
         self.id = id
         self.name = name

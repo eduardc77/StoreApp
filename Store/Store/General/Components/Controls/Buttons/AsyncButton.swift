@@ -9,10 +9,10 @@ struct AsyncButton<Label: View>: View {
     var role: ButtonRole?
     var action: () async -> Void
     @ViewBuilder let label: () -> Label
-
+    
     @MainActor
     @State private var isRunning = false
-
+    
     var body: some View {
         Button(role: role) {
             isRunning = true
@@ -20,7 +20,7 @@ struct AsyncButton<Label: View>: View {
                 await action()
                 // TODO: figure out if this is necessary
                 //async { @MainActor in
-                    isRunning = false
+                isRunning = false
                 //}
             }
         } label: {

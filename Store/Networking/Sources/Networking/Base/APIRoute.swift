@@ -6,33 +6,33 @@
 import Foundation.NSURL
 
 public protocol APIRoute: APIRequestData {
-
+    
     /// The HTTP method to use for the route.
     var httpMethod: HTTPMethod { get }
-
+    
     /// The route's ``ApiEnvironment`` relative path.
     var path: String { get }
-
+    
     /// Optional form data, which is sent as request body.
     var formParams: [String: String]? { get }
-
+    
     /// Optional upload data, which is sent as request body.
     var uploadData: Data? { get }
-
+    
     var mockFile: String? { get }
 }
 
 public extension APIRoute {
-
+    
     var headers: [String: String]? { nil }
-
+    
     var formParams: [String: String]? { nil }
-
+    
     var uploadData: Data? { nil }
 }
 
 public extension APIRoute {
-
+    
     /// Convert ``encodedFormItems`` to `.utf8` encoded data.
     var encodedFormData: Data? {
         guard let formParams, !formParams.isEmpty else { return nil }
@@ -41,14 +41,14 @@ public extension APIRoute {
         let paramString = params.query
         return paramString?.data(using: .utf8)
     }
-
+    
     /// Convert ``formParams`` to form encoded query items.
     var encodedFormItems: [URLQueryItem]? {
         formParams?
             .map { URLQueryItem(name: $0.key, value: $0.value.formEncoded()) }
             .sorted { $0.name < $1.name }
     }
-
+    
     /// Get a `URLRequest` for the route and its properties.
     func urlRequest(for env: APIEnvironment) throws -> URLRequest {
         var urlComponents = URLComponents()
@@ -56,7 +56,7 @@ public extension APIRoute {
         urlComponents.host = env.host
         urlComponents.path = pathComponent(for: env)
         urlComponents.queryItems = queryItems(for: env)
-
+        
         guard let requestURL = urlComponents.url else {
             throw NetworkError.invalidURLInComponents(urlComponents)
         }
@@ -65,7 +65,7 @@ public extension APIRoute {
         urlRequest.allHTTPHeaderFields = headers(for: env)
         urlRequest.httpBody = formData ?? uploadData
         urlRequest.httpMethod = httpMethod.method
-
+        
         let isFormRequest = formData != nil
         let contentType: ContentType = isFormRequest ? .form : .json
         urlRequest.setValue(
@@ -83,7 +83,7 @@ public extension APIRoute {
 }
 
 public extension APIEnvironment {
-
+    
     /// Get a `URLRequest` for a certain ``ApiRoute``.
     func urlRequest(for route: APIRoute) throws -> URLRequest {
         try route.urlRequest(for: self)
@@ -91,7 +91,7 @@ public extension APIEnvironment {
 }
 
 private extension APIRoute {
-
+    
     func headers(for env: APIEnvironment) -> [String: String] {
         var result = env.headers ?? [:]
         headers?.forEach {
@@ -99,25 +99,25 @@ private extension APIRoute {
         }
         return result
     }
-
+    
     func queryItems(for env: APIEnvironment) -> [URLQueryItem] {
         let routeData = encodedQueryItems ?? []
         let envData = env.encodedQueryItems ?? []
         return routeData + envData
     }
-
+    
     func pathComponent(for env: APIEnvironment) -> String {
         var pathComponent = ""
-
+        
         if !env.domain.isEmpty {
             pathComponent += env.domain
         }
         if let apiVersion = env.apiVersion?.rawValue {
             pathComponent += apiVersion
         }
-
+        
         pathComponent += path
-
+        
         return pathComponent
     }
 }

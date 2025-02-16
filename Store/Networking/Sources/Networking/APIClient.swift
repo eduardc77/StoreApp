@@ -7,7 +7,7 @@ import Foundation
 import OSLog
 
 extension URLSession: APIClient {
-
+    
     func request<T: Decodable>(
         _ request: (route: APIRoute, env: APIEnvironment),
         decoder: JSONDecoder? = nil,
@@ -15,7 +15,7 @@ extension URLSession: APIClient {
     ) async throws -> T {
         try await self.fetchRequest((route: request.route, env: request.env), decoder: decoder, allowRetry: allowRetry)
     }
-
+    
     func authorizedRequest<T: Decodable>(
         _ request: (route: APIRoute, env: APIEnvironment),
         decoder: JSONDecoder? = nil,
@@ -31,7 +31,7 @@ extension URLSession: APIClient {
 }
 
 public protocol APIClient {
-
+    
     /// Fetch data with the provided `URLRequest`.
     func data(
         for request: URLRequest
@@ -39,7 +39,7 @@ public protocol APIClient {
 }
 
 extension APIClient {
-
+    
     public func fetchRequest<T: Decodable>(
         _ request: (route: APIRoute, env: APIEnvironment),
         decoder: JSONDecoder? = nil,
@@ -47,7 +47,7 @@ extension APIClient {
         refreshToken: (() async throws -> OAuthToken)? = nil
     ) async throws -> T {
         let (data, response) = try await data(for: request.route.urlRequest(for: request.env))
-
+        
         return try await handleResponse(
             requestResponse: (data: data, response: response),
             request: (route: request.route, env: request.env),
@@ -56,7 +56,7 @@ extension APIClient {
             refreshToken: refreshToken
         )
     }
-
+    
     private func handleResponse<T: Decodable>(
         requestResponse: (data: Data, response: URLResponse),
         request: (route: APIRoute, env: APIEnvironment),
@@ -94,7 +94,7 @@ extension APIClient {
             throw NetworkError.invalidResponse
         }
     }
-
+    
     func refreshTokenAndRetryRequestOnce<T: Decodable>(
         request: (route: APIRoute, env: APIEnvironment),
         decoder: JSONDecoder? = nil,

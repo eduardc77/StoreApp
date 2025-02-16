@@ -28,7 +28,7 @@ public enum NetworkError: Error, Equatable, LocalizedError {
     case invalidRequestBody
     case noInternetConnection
     case customError(message: String)
-
+    
     static func from(httpStatusCode: Int, message: String) -> NetworkError {
         switch httpStatusCode {
         case 200...299: return .requestFailed(statusCode: httpStatusCode, message: message)

@@ -7,19 +7,19 @@ import SwiftUI
 
 struct HomeScreen: View {
     @Environment(AccountManager.self) private var accountManager
-    
+
     @State private var showAccountView: Bool = false
-    
+
     var body: some View {
         NavigationStack {
             VStack {
                 Spacer()
-                
+
                 Text("Home.Welcome.Message")
                     .font(.title)
-                
+
                 Spacer()
-                
+
                 Button(
                     role: .destructive,
                     action: {
@@ -43,7 +43,7 @@ struct HomeScreen: View {
             .sheet(isPresented: $showAccountView, content: { AccountView() })
         }
     }
-    
+
     private var profileToolbarItem: some View {
         Button {
             showAccountView = true
