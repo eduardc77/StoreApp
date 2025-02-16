@@ -14,7 +14,7 @@
 
 This is an implementation and consumtion of a generic networking layer that can be used to request raw and typed data from any REST API. Now updated with a JWT Refresh Token mechanism using actors to ensure thread safety.
 
-In this example app I used this local Networking Package to interact with data from the [Platzi Fake Store API](https://fakeapi.platzi.com/en/rest/users/).
+In this example app I used this local Networking Package to interact with data from the [Platzi Fake Store API](https://fakeapi.platzi.com/en/about/introduction/).
 
 The app is still work in progress.
 
