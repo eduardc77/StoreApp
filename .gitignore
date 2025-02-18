@@ -5,8 +5,29 @@
 ## User settings
 xcuserdata/
 
+# Xcode Workspace settings
+*.xcworkspace
+
+# Swift build artifacts
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+## macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
 ## Obj-C/Swift specific
 *.hmap
+
+# User-specific files
+*.swp
+*~ 
+.vscode/
+*.xcuserstate
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Other files to ignore
+*.log
 
 ## App packaging
 *.ipa
