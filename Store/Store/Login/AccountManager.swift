@@ -56,8 +56,7 @@ final class AccountManager {
         do {
             defer { isLoading = false }
             isLoading = true
-            let loginResponse: LoginResponseData = try await accountService.login(with: credentials)
-            await accountService.storeToken(loginResponseData: loginResponse)
+            let _: LoginResponseData = try await accountService.login(with: credentials)
             loggedIn = true
         } catch {
             Logger.account.error("Error on login: \(error.localizedDescription).")

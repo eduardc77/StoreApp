@@ -12,3 +12,5 @@ public struct Credentials: Decodable {
         self.password = password
     }
 }
+
+extension Credentials: Sendable {}

@@ -6,7 +6,7 @@
 /**
  This enum defines various HTTP methods.
  */
-enum HTTPMethod: String, CaseIterable, Identifiable {
+public enum HTTPMethod: String, CaseIterable, Identifiable {
     case connect
     case delete
     case get
@@ -18,8 +18,10 @@ enum HTTPMethod: String, CaseIterable, Identifiable {
     case trace
     
     /// The unique HTTP method identifier.
-    var id: String { rawValue }
-    
+    public var id: String { rawValue }
+
     /// The uppercased HTTP method name.
-    var method: String { id.uppercased() }
+    public var method: String { id.uppercased() }
 }
+
+extension HTTPMethod: Sendable {}

@@ -4,31 +4,32 @@
 //
 
 import Foundation
+import OSLog
 
-class StoreClient: APIClient {
+public final class StoreClient: APIClient {
 
-    var decoder: JSONDecoder = {
+    var decoder: JSONDecoder {
         let aDecoder = JSONDecoder()
         aDecoder.keyDecodingStrategy = .convertFromSnakeCase
         return aDecoder
-    }()
-
-    private let dataloader: any HTTPDataLoader
-    private let authorizationManager: AuthorizationManager
-
-    init(
-        authorizationManager: AuthorizationManager,
-        dataloader: any HTTPDataLoader = URLSession.shared
-    ) {
-        self.authorizationManager = authorizationManager
-        self.dataloader = dataloader
     }
 
-    func request<T: Decodable>(
+    let authorizationManager: AuthorizationManager
+    private let dataLoader: HTTPDataLoader
+
+    public init(
+        authorizationManager: AuthorizationManager,
+        dataLoader: HTTPDataLoader = URLSession.shared
+    ) {
+        self.authorizationManager = authorizationManager
+        self.dataLoader = dataLoader
+    }
+
+    public func request<T: Decodable & Sendable>(
         _ route: APIRoute,
         in environment: APIEnvironment
     ) async throws -> T {
-        let (data, response) = try await dataloader.data(from: route, in: environment)
+        let (data, response) = try await dataLoader.data(from: route, in: environment)
         return try await handleResponse(
             requestResponse: (data: data, response: response),
             for: route,
@@ -37,14 +38,14 @@ class StoreClient: APIClient {
         )
     }
 
-    func authorizedRequest<T: Decodable>(
+    public func authorizedRequest<T: Decodable & Sendable>(
         _ route: APIRoute,
         in environment: APIEnvironment,
         allowRetry: Bool = true
     ) async throws -> T {
         let token = try await authorizationManager.validToken()
 
-        let (data, response) = try await dataloader.data(
+        let (data, response) = try await dataLoader.data(
             from: route,
             in: environment,
             token: token
@@ -60,7 +61,7 @@ class StoreClient: APIClient {
 
 private extension StoreClient {
 
-    func handleResponse<T: Decodable>(
+    func handleResponse<T: Decodable & Sendable>(
         requestResponse: (data: Data, response: URLResponse),
         for route: APIRoute,
         in environment: APIEnvironment,
@@ -71,11 +72,8 @@ private extension StoreClient {
         }
         switch httpResponse.statusCode {
         case 200...299:
-            do {
-                return try decoder.decode(T.self, from: requestResponse.data)
-            } catch {
-                throw NetworkError.decodingError
-            }
+            logResponse(data: requestResponse.data, response: httpResponse)
+            return try await decodeResponse(requestResponse.data)
         case 401, 403:
             // Unauthorized or Forbidden (likely token expired), attempt to refresh token and retry request once.
             return try await refreshTokenAndRetryRequestOnce(
@@ -83,11 +81,7 @@ private extension StoreClient {
                 in: environment,
                 allowRetry: allowRetry)
         case 400...499:
-            if let error = try? decoder.decode(ServerError.self, from: requestResponse.data) {
-                throw NetworkError.internalServerError(message: error.error)
-            } else {
-                throw NetworkError.invalidResponse
-            }
+            throw try await handleClientError(responseData: requestResponse.data)
         case 500...599:
             throw NetworkError.requestFailed(statusCode: httpResponse.statusCode, message: httpResponse.description)
         default:
@@ -95,26 +89,43 @@ private extension StoreClient {
         }
     }
 
-    func refreshTokenAndRetryRequestOnce<T: Decodable>(
+    func decodeResponse<T: Decodable>(_ data: Data) async throws -> T {
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            throw NetworkError.decodingError
+        }
+    }
+
+    func refreshTokenAndRetryRequestOnce<T: Decodable & Sendable>(
         for route: APIRoute,
         in environment: APIEnvironment,
         allowRetry: Bool
     ) async throws -> T {
-        if allowRetry {
-            _ = try await authorizationManager.refreshToken()
-            return try await authorizedRequest(
-                route,
-                in: environment,
-                allowRetry: false)
-        } else {
-            throw NetworkError.unauthorized
+        guard allowRetry else { throw NetworkError.unauthorized }
+        _ = try await authorizationManager.refreshToken()
+        return try await authorizedRequest(
+            route,
+            in: environment,
+            allowRetry: false)
+    }
+
+    func handleClientError(responseData: Data) async throws -> NetworkError {
+        do {
+            let error = try decoder.decode(ServerError.self, from: responseData)
+            return NetworkError.internalServerError(message: error.error)
+        } catch {
+            if let errorString = String(data: responseData, encoding: .utf8) {
+                return NetworkError.internalServerError(message: errorString)
+            }
+            return NetworkError.decodingError
+        }
+    }
+
+    func logResponse(data: Data, response: URLResponse) {
+        if let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers),
+           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
+            Logger.networking.debug("\(String(decoding: jsonData, as: UTF8.self))")
         }
     }
 }
-
-// if let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers),
-//    let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
-//     print(String(decoding: jsonData, as: UTF8.self))
-// } else {
-//     print("json data malformed")
-// }

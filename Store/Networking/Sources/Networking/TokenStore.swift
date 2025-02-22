@@ -1,27 +1,21 @@
-//
-//  TokenStore.swift
-//  Store
-//
-
 import Foundation
 import KeychainSwift
 
-protocol TokenStoreProtocol {
+public protocol TokenStoreProtocol: Actor {
     func getAuthorizationData() -> OAuthToken?
     func setAuthorizationData(_ authorizationData: OAuthToken)
     func deleteAuthorizationData()
 }
 
-struct TokenStore: TokenStoreProtocol {
-    
+public actor TokenStore: TokenStoreProtocol {
     enum KeychainKey: String {
         case authorizationData
     }
     
-    private var encoder: JSONEncoder = { JSONEncoder() }()
-    private var decoder: JSONDecoder = { JSONDecoder() }()
+    private let encoder: JSONEncoder = JSONEncoder()
+    private let decoder: JSONDecoder = JSONDecoder()
     
-    private var keychain: KeychainSwift = {
+    private let keychain: KeychainSwift = {
         let keychain = KeychainSwift()
 #if !DEBUG && !targetEnvironment(simulator)
         keychain.accessGroup = AppInfo.keychainGroup
@@ -29,12 +23,14 @@ struct TokenStore: TokenStoreProtocol {
         return keychain
     }()
 
-    func getAuthorizationData() -> OAuthToken? {
+    public init() {}
+
+    public func getAuthorizationData() -> OAuthToken? {
         guard let retrievedData = keychain.getData(KeychainKey.authorizationData.rawValue) else { return nil }
         return decodeAuthorizationCredentials(from: retrievedData)
     }
     
-    func setAuthorizationData(_ tokenData: OAuthToken) {
+    public func setAuthorizationData(_ tokenData: OAuthToken) {
         guard let encodedData = encodeAuthorizationCredentialsToData(tokenData) else { return }
         keychain.set(
             encodedData,
@@ -42,11 +38,11 @@ struct TokenStore: TokenStoreProtocol {
             withAccess: .accessibleAfterFirstUnlock)
     }
     
-    func deleteAuthorizationData() {
+    public func deleteAuthorizationData() {
         keychain.delete(KeychainKey.authorizationData.rawValue)
     }
     
-    func encodeAuthorizationCredentialsToData(_ authorizationCredentials: OAuthToken) -> Data? {
+    private func encodeAuthorizationCredentialsToData(_ authorizationCredentials: OAuthToken) -> Data? {
         do {
             let encodedData = try encoder.encode(authorizationCredentials)
             return encodedData
@@ -56,7 +52,7 @@ struct TokenStore: TokenStoreProtocol {
         }
     }
     
-    func decodeAuthorizationCredentials(from data: Data) -> OAuthTokenDTO? {
+    private func decodeAuthorizationCredentials(from data: Data) -> OAuthTokenDTO? {
         do {
             let authorizationCredentials = try decoder.decode(OAuthTokenDTO.self, from: data)
             return authorizationCredentials
@@ -65,4 +61,4 @@ struct TokenStore: TokenStoreProtocol {
             return nil
         }
     }
-}
+} 

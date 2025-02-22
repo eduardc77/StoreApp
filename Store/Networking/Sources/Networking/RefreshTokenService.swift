@@ -5,11 +5,11 @@
 
 import Foundation
 
-protocol RefreshTokenNetworkServicing: Sendable {
+public protocol RefreshTokenNetworkServicing: Sendable {
     func refreshToken(_ refreshToken: String) async throws -> OAuthToken
 }
 
-struct RefreshTokenNetworkService: RefreshTokenNetworkServicing {
+public struct RefreshTokenNetworkService: RefreshTokenNetworkServicing {
 
     private let dataloader: any HTTPDataLoader
 
@@ -19,11 +19,11 @@ struct RefreshTokenNetworkService: RefreshTokenNetworkServicing {
         return aDecoder
     }
 
-    init(dataloader: any HTTPDataLoader = URLSession.shared) {
+    public init(dataloader: any HTTPDataLoader = URLSession.shared) {
         self.dataloader = dataloader
     }
 
-    func refreshToken(_ refreshToken: String) async throws -> OAuthToken {
+    public func refreshToken(_ refreshToken: String) async throws -> OAuthToken {
         let route = Store.Authentication.refreshToken(refreshToken: refreshToken)
         let environment = Store.Environment.develop
         let (data, response) = try await dataloader.data(from: route, in: environment)

@@ -14,10 +14,7 @@ public extension Logger {
     
     /// All logs related to tracking and analytics.
     static let statistics = Logger(subsystem: subsystem, category: "statistics")
-    
-    /// All logs related to networking.
-    static let networking = Logger(subsystem: subsystem, category: "networking")
-    
+
     /// All logs related to account and authentication.
     static let account = Logger(subsystem: subsystem, category: "account")
 }

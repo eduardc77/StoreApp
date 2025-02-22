@@ -3,7 +3,7 @@
 //  Store
 //
 
-protocol APIEnvironment: APIRequestData {
+public protocol APIEnvironment: APIRequestData, Sendable {
     var scheme: String { get }
     var host: String { get }
     var apiVersion: APIVersion? { get }

@@ -5,7 +5,7 @@
 
 import Foundation
 
-protocol APIRoute: APIRequestData {
+public protocol APIRoute: APIRequestData, Sendable {
     
     /// The HTTP method to use for the route.
     var httpMethod: HTTPMethod { get }
@@ -64,7 +64,9 @@ extension APIRoute {
         urlComponents.scheme = environment.scheme
         urlComponents.host = environment.host
         urlComponents.path = pathComponent(for: environment)
-        urlComponents.queryItems = queryItems(for: environment)
+        if !queryItems(for: environment).isEmpty {
+            urlComponents.queryItems = queryItems(for: environment)
+        }
         return urlComponents
     }
 

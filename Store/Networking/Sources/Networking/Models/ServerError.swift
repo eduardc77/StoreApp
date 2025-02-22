@@ -3,7 +3,7 @@
 //  Store
 //
 
-struct ServerError: Codable {
+public struct ServerError: Codable {
     let error: String
     let timestamp: String
     let path: String

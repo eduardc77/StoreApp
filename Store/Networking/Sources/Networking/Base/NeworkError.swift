@@ -28,6 +28,8 @@ enum NetworkError: Error, Equatable, LocalizedError {
     case invalidRequestBody
     case noInternetConnection
     case customError(message: String)
+    case connectionError
+    case cancelled
     
     static func from(httpStatusCode: Int, message: String) -> NetworkError {
         switch httpStatusCode {
@@ -44,3 +46,5 @@ enum NetworkError: Error, Equatable, LocalizedError {
         }
     }
 }
+
+extension NetworkError: Sendable {}

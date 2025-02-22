@@ -16,3 +16,5 @@ public struct RegisterFormData: Decodable {
         self.avatar = avatar
     }
 }
+
+extension RegisterFormData: Sendable {}

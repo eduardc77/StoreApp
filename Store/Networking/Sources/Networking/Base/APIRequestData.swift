@@ -5,7 +5,7 @@
 
 import Foundation.NSURL
 
-protocol APIRequestData {
+public protocol APIRequestData: Sendable {
     
     /// Optional header parameters.
     var headers: [String: String]? { get }

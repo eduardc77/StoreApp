@@ -6,7 +6,7 @@
 import Foundation
 import OSLog
 
-protocol HTTPDataLoader: Sendable {
+public protocol HTTPDataLoader: Sendable {
 
     /// Fetch data with the provided `URLRequest`.
     func data(
@@ -32,7 +32,7 @@ extension HTTPDataLoader {
 
 extension URLSession: HTTPDataLoader {
 
-    func data(
+    public func data(
         from route: APIRoute,
         in environment: APIEnvironment,
         token: OAuthToken? = nil
@@ -44,14 +44,14 @@ extension URLSession: HTTPDataLoader {
     }
 }
 
-protocol APIClient {
+public protocol APIClient: Sendable {
 
-    func request<T: Decodable>(
+    func request<T: Decodable & Sendable>(
         _ route: APIRoute,
         in: APIEnvironment
     ) async throws -> T
 
-    func authorizedRequest<T: Decodable>(
+    func authorizedRequest<T: Decodable & Sendable>(
         _ route: APIRoute,
         in: APIEnvironment,
         allowRetry: Bool
@@ -60,14 +60,14 @@ protocol APIClient {
 
 extension APIClient {
 
-    func request<T: Decodable>(
+    public func request<T: Decodable & Sendable>(
         _ route: APIRoute,
         in environment: APIEnvironment
     ) async throws -> T {
         try await self.request(route, in: environment)
     }
 
-    func authorizedRequest<T: Decodable>(
+    public func authorizedRequest<T: Decodable & Sendable>(
         _ route: APIRoute,
         in environment: APIEnvironment,
         allowRetry: Bool = true

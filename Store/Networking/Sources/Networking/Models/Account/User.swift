@@ -3,7 +3,7 @@
 //  Store
 //
 
-public struct User: Identifiable, Decodable {
+public struct User: Identifiable, Codable {
     public let id: Int
     public let name: String
     public let email: String
@@ -24,3 +24,5 @@ public struct User: Identifiable, Decodable {
         self.updatedAt = updatedAt
     }
 }
+
+extension User: Sendable {}

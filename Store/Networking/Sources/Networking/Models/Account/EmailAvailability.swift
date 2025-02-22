@@ -3,6 +3,8 @@
 //  Networking
 //
 
-public struct EmailAvailabilityDTO: Decodable {
+public struct EmailAvailabilityDTO: Codable {
     let isAvailable: Bool
 }
+
+extension EmailAvailabilityDTO: Sendable {}
